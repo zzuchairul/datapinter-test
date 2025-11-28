@@ -1,4 +1,4 @@
-import { type IQueryPagination } from '@common/paginations';
+import { type IGeneratedQuery } from '@common/generateQuery';
 import type { ITodoRepository } from '@core/ITodoRepository';
 import type { Todo } from '@domain/Todo';
 import { prisma } from './client';
@@ -40,21 +40,26 @@ export class PrismaTodoRepository implements ITodoRepository {
       : null;
   }
 
-  async findByUserId(userId: string, queryPagination: IQueryPagination): Promise<{ data: Todo[]; count: number; }> {
+  async findByUserId(userId: string, query: IGeneratedQuery): Promise<{ data: Todo[]; count: number; }> {
     // Generated pagination
-    const { take, skip } = queryPagination;
-
     // Promise to run query synchronous
     const [todos, todosCount] = await Promise.all([
       // Get todos by userId
       prisma.todo.findMany({
-        where: { userId },
-        take,
-        skip,
+        skip: query.skip,
+        take: query.take,
+        where: {
+          ...query.whereClause,
+          userId,
+        },
+        orderBy: query.orderClause,
       }),
       // Get all todos count
       prisma.todo.count({
-        where: { userId },
+        where: {
+          ...query.whereClause,
+          userId,
+        },
       }),
     ]);
 

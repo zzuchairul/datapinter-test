@@ -1,4 +1,4 @@
-import { type IQueryPagination } from "@common/paginations";
+import { type IGeneratedQuery } from "@common/generateQuery";
 import { ITodoRepository } from "@core/ITodoRepository";
 import { Todo } from "@domain/Todo";
 
@@ -46,7 +46,7 @@ export class InMemoryTodoRepository implements ITodoRepository {
     return todo || null;
   }
 
-  async findByUserId(userId: string, queryPagination: IQueryPagination): Promise<{ data: Todo[]; count: number; }> {
+  async findByUserId(userId: string, queryPagination: IGeneratedQuery): Promise<{ data: Todo[]; count: number; }> {
     // Generated Pagination
     const { skip, take } = queryPagination;
 

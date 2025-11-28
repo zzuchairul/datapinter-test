@@ -2,6 +2,7 @@ import { IHttpServer, RouteHandler } from '@infra/HttpServerShell';
 import express, { Express, Request, Response, type NextFunction } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { Server } from 'http';
+import morgan from 'morgan';
 
 
 export class ExpressHttpServer implements IHttpServer {
@@ -12,7 +13,7 @@ export class ExpressHttpServer implements IHttpServer {
     // Create express app
     this.app = express();
 
-    // Init Middleware
+    // Accept JSON body
     this.app.use(express.json());
 
     // Rate Limitter
@@ -24,6 +25,9 @@ export class ExpressHttpServer implements IHttpServer {
       ipv6Subnet: 56,
     });
     this.app.use(limiter);
+
+    // Logging 
+    this.app.use(morgan('common')); 
 
     // Check health
     this.app.get('/health', (_, res: Response) => {

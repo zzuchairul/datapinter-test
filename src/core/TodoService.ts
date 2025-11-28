@@ -1,5 +1,5 @@
+import { generateQuery } from '@common/generateQuery';
 import { ApiError } from '@common/httpErrors';
-import { generateQueryPagination } from '@common/paginations';
 import { Todo } from '@domain/Todo';
 import { CreateTodoDTO } from '@dto/CreateTodoDTO';
 import type { GetTodoListDTO } from '@dto/GetTodoListDTO';
@@ -10,13 +10,13 @@ export class TodoService {
   constructor(private todoRepo: ITodoRepository, private userRepo: IUserRepository) {}
 
   // Change data input type from any to CreateTodoDTO
-  async createTodo(data: CreateTodoDTO): Promise<Todo> {
-    // # Bug/Issue 1, check if title empty or only contain white-space
+  async createTodo(data: CreateTodoDTO & { userId: string }): Promise<Todo> {
+    // Check if title empty or only contain white-space
     if (!data.title.trim()) {
       throw new ApiError('BAD_REQUEST', 'title field is required');
     }
     
-    // # Bug/Issue 2, check is userId is an exist user
+    // Check is userId is an exist user
     const user = await this.userRepo.findById(data.userId);
     if (!user) {
       throw new ApiError('NOT_FOUND', `User with id ${data.userId} not found`);
@@ -59,11 +59,9 @@ export class TodoService {
     return updated;
   }
 
-  async getTodosByUser(userId: string, data: GetTodoListDTO): Promise<{ data: Todo[]; count: number }> {
-    const { limit, page } = data;
-
+  async getTodosByUser(userId: string, query: GetTodoListDTO): Promise<{ data: Todo[]; count: number }> {
     // Generate query for pagination
-    const queryPagination = generateQueryPagination({ limit, page });
+    const queryPagination = generateQuery(query);
 
     return this.todoRepo.findByUserId(userId, queryPagination);
   }

@@ -26,7 +26,10 @@ export class TodoController {
     if (!bodyParsed.success) {
       throw new ApiError('BAD_REQUEST', bodyParsed.error.message);
     }
-    const data = await this.todoService.createTodo(req.userId!, req.body);
+    const data = await this.todoService.createTodo({
+      ...req.body,
+      userId: req.userId
+    });
     res.status(constants.HTTP_STATUS_CREATED).json(data);
   };
 
@@ -54,10 +57,7 @@ export class TodoController {
 
     const data = await this.todoService.getTodosByUser(req.userId!, queryParsed.data);
 
-    res.status(constants.HTTP_STATUS_OK).json({
-      ...data,
-      page: queryParsed.data.page,
-    });
+    res.status(constants.HTTP_STATUS_OK).json(data);
   };
 
   /**

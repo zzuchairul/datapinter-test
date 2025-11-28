@@ -1,7 +1,9 @@
 import { compared, hashed } from "@common/bcrypt";
+import { generateQuery } from "@common/generateQuery";
 import { ApiError } from "@common/httpErrors";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "@common/jwt";
 import type { CreateUserDTO } from "@dto/CreatedUserDTO";
+import type { GetUserListDTO } from "@dto/GetUserListDTO";
 import type { LoginUserDTO } from "@dto/LoginUserDTO";
 import type { User } from "@lib/prisma/client";
 import type { IUserRepository } from "./IUserRepository";
@@ -45,9 +47,17 @@ export class UserService {
     return user;
   }
 
-  async findAllUser(): Promise<Omit<User, 'password' | 'refreshToken'>[]> {
-    const users = await this.userRepo.findAll();
-    return users;
+  async findAllUser(query: GetUserListDTO): Promise<{data: Omit<User, 'password' | 'refreshToken'>[], count: number}> {
+    const genQuery = generateQuery(query);
+    const {data, count} = await this.userRepo.findAll(genQuery);
+    return {
+      data: data.map(user => ({
+        ...user,
+        password: undefined,
+        refreshToken: undefined
+      })),
+      count
+    }
   }
 
   async login(data: LoginUserDTO): Promise<{

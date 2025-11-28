@@ -1,3 +1,4 @@
+import type { IGeneratedQuery } from "@common/generateQuery";
 import type { IUserRepository } from "@core/IUserRepository";
 import type { User } from "@domain/User";
 import { prisma } from "./client";
@@ -29,9 +30,23 @@ export class PrismaUserRepository implements IUserRepository {
       : null;
   }
 
-  async findAll(): Promise<Omit<User, 'password' | 'refreshToken'>[]> {
-    const users = await prisma.user.findMany();
-    return users;
+  async findAll(query: IGeneratedQuery): Promise<{ data: User[]; count: number; }> {
+    const [users, count] = await Promise.all([
+      prisma.user.findMany({
+        take: query.take,
+        skip: query.skip,
+        orderBy: query.orderClause,
+        where: query.whereClause
+      }),
+      prisma.user.count({
+        where: query.whereClause
+      })
+    ]);
+    
+    return {
+      data: users, 
+      count
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {

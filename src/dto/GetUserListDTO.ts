@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const GetTodoListSchema = z.object({
+export const GetUserListSchema = z.object({
   limit: z
     .string()
     .regex(/^\d+$/, 'limit must be a positive integer')
@@ -18,7 +18,7 @@ export const GetTodoListSchema = z.object({
   searchVal: z.string().optional(),
   searchBy: z.string().optional(),
   sortBy: z.string().optional().default('createdAt'),
-  sortVal: z.string().optional().default('desc'),
+  sortVal: z.string().optional().default('asc'),
 });
 
-export type GetTodoListDTO = z.infer<typeof GetTodoListSchema>;
+export type GetUserListDTO = z.infer<typeof GetUserListSchema>;

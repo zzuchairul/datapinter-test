@@ -1,8 +1,9 @@
 import { ApiError } from '@common/httpErrors';
 import type { UserService } from '@core/UserService';
 import { CreateUserSchema } from '@dto/CreatedUserDTO';
+import { GetUserListSchema } from '@dto/GetUserListDTO';
 import { LoginUserSchema } from '@dto/LoginUserDTO';
-import { RefreshUserTokenSchema } from '@dto/RefreshUserTokenDTO';
+import { RefreshUserTokenSchema } from '@dto/RefreshUserDTO';
 import { Request, Response } from 'express';
 import { constants } from 'http2';
 import type { AuthRequest } from 'src/middleware/authMiddleware';
@@ -62,8 +63,14 @@ export class UserController {
    * @returns A JSON array of User objects for the given user.
    *
    */
-  findListUser = async (_req: Request, res: Response) => {
-    const data = await this.userService.findAllUser();
+  findListUser = async (req: Request, res: Response) => {
+    const queryParsed = GetUserListSchema.safeParse(req.query);
+    
+    if (!queryParsed.success) {
+      throw new ApiError('BAD_REQUEST', queryParsed.error.message);
+    }
+
+    const data = await this.userService.findAllUser(queryParsed.data);
     res.status(constants.HTTP_STATUS_OK).json(data);
   };
 
