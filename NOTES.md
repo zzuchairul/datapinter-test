@@ -283,10 +283,11 @@ Verify health on [http://localhost:3000/health](http://localhost:3000/health).
 
 ### Details
 
-I really try to figure out to not touch the test file and core interface file. But I dont found another way to make it sync with my implementataion. For example because im implementing paginatio I need to change core interface file, and add mock data in test file.
+I tried my best not to modify the test files or the core interface files, but I couldn’t find a the way to keep everything in sync with my implementation. For example, while implementing pagination, I had to update the core interface repository file and add mock query in the test file. I added inline comments in the test file to briefly explain these changes.
 
-For test file, I dont change any expected output, although I think there's one unit test that has bad implementation that will never to pass. The one with "should mark a pending todo as done".
+In the test files, I did not change any expected outputs, although I believe one of the unit tests—specifically, the one titled “should mark a pending todo as done”, Im pretty sure its written incorectly and will never pass the unit test.
 
+Although I haven’t implemented API documentation yet, I plan to add it gradually as a future improvement after submitting this coding test.
 
 ---
 
