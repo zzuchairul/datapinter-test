@@ -1,11 +1,11 @@
-import { User } from "../domain/User";
 import { IUserRepository } from "../core/IUserRepository";
+import { User } from "../domain/User";
 
 export class InMemoryUserRepository implements IUserRepository {
   private users: User[] = [];
   private idCounter = 0;
 
-  async create(userData: Omit<User, "id" | "createdAt">): Promise<User> {
+  async create(userData: Omit<User, 'id' | 'createdAt'>): Promise<User> {
     this.idCounter++;
     const user: User = {
       ...userData,
@@ -23,5 +23,21 @@ export class InMemoryUserRepository implements IUserRepository {
 
   async findAll(): Promise<User[]> {
     return this.users;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const user = this.users.find((user) => user.email === email);
+    return user ?? null;
+  }
+
+  async update(id: string, updates: Partial<Omit<User, 'id' | 'createdAt'>>): Promise<User> {
+    const index = this.users.findIndex((t) => t.id === id);
+
+    this.users[index] = {
+      ...this.users[index],
+      ...updates,
+    };
+
+    return this.users[index];
   }
 }

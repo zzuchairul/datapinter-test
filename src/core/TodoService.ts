@@ -1,19 +1,32 @@
-import { Todo } from "../domain/Todo";
-import { ITodoRepository } from "./ITodoRepository";
-import { IUserRepository } from "./IUserRepository";
+import { ApiError } from '@common/httpErrors';
+import { generateQueryPagination } from '@common/paginations';
+import { Todo } from '@domain/Todo';
+import { CreateTodoDTO } from '@dto/CreateTodoDTO';
+import type { GetTodoListDTO } from '@dto/GetTodoListDTO';
+import { ITodoRepository } from './ITodoRepository';
+import { IUserRepository } from './IUserRepository';
 
 export class TodoService {
-  constructor(
-    private todoRepo: ITodoRepository,
-    private userRepo: IUserRepository
-  ) {}
+  constructor(private todoRepo: ITodoRepository, private userRepo: IUserRepository) {}
 
-  async createTodo(data: any): Promise<Todo> {
+  // Change data input type from any to CreateTodoDTO
+  async createTodo(data: CreateTodoDTO): Promise<Todo> {
+    // # Bug/Issue 1, check if title empty or only contain white-space
+    if (!data.title.trim()) {
+      throw new ApiError('BAD_REQUEST', 'title field is required');
+    }
+    
+    // # Bug/Issue 2, check is userId is an exist user
+    const user = await this.userRepo.findById(data.userId);
+    if (!user) {
+      throw new ApiError('NOT_FOUND', `User with id ${data.userId} not found`);
+    }
+
     const todo = await this.todoRepo.create({
       userId: data.userId,
       title: data.title,
-      description: data.description,
-      status: "PENDING",
+      description: data.description ?? undefined,
+      status: 'PENDING',
       remindAt: data.remindAt ? new Date(data.remindAt) : undefined,
     });
 
@@ -21,30 +34,38 @@ export class TodoService {
   }
 
   async completeTodo(todoId: string): Promise<Todo> {
+    // Check if todo is exist.
     const todo = await this.todoRepo.findById(todoId);
 
     if (!todo) {
-      throw new Error("Not found");
+      throw new ApiError('NOT_FOUND', `Todo with id ${todoId} not found`);
     }
 
-    if (todo.status == "DONE") {
+    // If status already DONE, return it.
+    if (todo.status === 'DONE') {
       return todo;
     }
 
     const updated = await this.todoRepo.update(todoId, {
-      status: "DONE",
-      updatedAt: new Date(),
+      status: 'DONE',
+      // NOTE: It's better not to manually set updatedAt since it's automatically updated in InMemoryTodoRepo and PrismaTodoRepo
+      // updatedAt: new Date()
     });
 
     if (!updated) {
-      throw new Error("Not found");
+      throw new ApiError('INTERNAL_ERROR', 'Something went wrong');
     }
 
     return updated;
   }
 
-  async getTodosByUser(userId: string): Promise<Todo[]> {
-    return this.todoRepo.findByUserId(userId);
+  async getTodosByUser(userId: string, data: GetTodoListDTO): Promise<{ data: Todo[]; count: number }> {
+    const { limit, page } = data;
+
+    // Generate query for pagination
+    const queryPagination = generateQueryPagination({ limit, page });
+
+    return this.todoRepo.findByUserId(userId, queryPagination);
   }
 
   async processReminders(): Promise<void> {
@@ -53,9 +74,12 @@ export class TodoService {
 
     for (const todo of dueTodos) {
       // This should only process PENDING todos, but doesn't check
+      if (todo.status === 'DONE') continue;
+
       await this.todoRepo.update(todo.id, {
-        status: "REMINDER_DUE",
-        updatedAt: new Date(),
+        status: 'REMINDER_DUE',
+        // NOTE: It's better not to manually set updatedAt since it's automatically updated in InMemoryTodoRepo and PrismaTodoRepo
+        // updatedAt: new Date(),
       });
     }
   }

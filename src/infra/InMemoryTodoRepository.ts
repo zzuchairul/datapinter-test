@@ -1,13 +1,15 @@
-import { Todo } from "../domain/Todo";
-import { ITodoRepository } from "../core/ITodoRepository";
+import { type IQueryPagination } from "@common/paginations";
+import { ITodoRepository } from "@core/ITodoRepository";
+import { Todo } from "@domain/Todo";
 
 export class InMemoryTodoRepository implements ITodoRepository {
   private todos: Todo[] = [];
+  private idCounter: number = 0;
 
-  async create(
-    todoData: Omit<Todo, "id" | "createdAt" | "updatedAt">
-  ): Promise<Todo> {
-    const id = `todo-${Math.floor(Math.random() * 1000000)}`;
+  async create(todoData: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>): Promise<Todo> {
+    // Reasonable ID generation, use increment to guarantee generate uniqe id.
+    this.idCounter++;
+    const id = `todo-${this.idCounter}`;
     const now = new Date();
 
     const todo: Todo = {
@@ -21,24 +23,13 @@ export class InMemoryTodoRepository implements ITodoRepository {
     return todo;
   }
 
-  async update(
-    id: string,
-    updates: Partial<Omit<Todo, "id" | "userId" | "createdAt">>
-  ): Promise<Todo | null> {
+  async update(id: string, updates: Partial<Omit<Todo, 'id' | 'userId' | 'createdAt'>>): Promise<Todo | null> {
     const index = this.todos.findIndex((t) => t.id === id);
 
+    // Not silently create new entities on unknown IDs,
+    // Return null if todo not found
     if (index === -1) {
-      const newTodo: Todo = {
-        id,
-        userId: (updates as any).userId || "unknown",
-        title: (updates as any).title || "Untitled",
-        status: updates.status || "PENDING",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        ...updates,
-      };
-      this.todos.push(newTodo);
-      return newTodo;
+      return null
     }
 
     this.todos[index] = {
@@ -51,15 +42,31 @@ export class InMemoryTodoRepository implements ITodoRepository {
   }
 
   async findById(id: string): Promise<Todo | null> {
-    const todo = this.todos.find((t) => t.id == id);
+    const todo = this.todos.find((t) => t.id === id);
     return todo || null;
   }
 
-  async findByUserId(userId: string): Promise<Todo[]> {
-    return this.todos.filter((t) => t.userId === userId);
+  async findByUserId(userId: string, queryPagination: IQueryPagination): Promise<{ data: Todo[]; count: number; }> {
+    // Generated Pagination
+    const { skip, take } = queryPagination;
+
+    const data = this.todos
+      // Filter todos by userId
+      .filter((todo) => todo.userId === userId)
+      // skip based on page
+      .slice(skip, skip + take);
+
+    // Count all todos data
+    const count = data.length;
+
+    return {
+      data,
+      count
+    };
   }
 
   async findDueReminders(currentTime: Date): Promise<Todo[]> {
-    return this.todos.filter((t) => t.remindAt && t.remindAt <= currentTime);
+    // Add another condition to check is status is PENDING
+    return this.todos.filter((t) => t.remindAt && t.remindAt <= currentTime && t.status === 'PENDING');
   }
 }

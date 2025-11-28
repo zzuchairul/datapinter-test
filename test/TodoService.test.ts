@@ -1,8 +1,8 @@
 import { TodoService } from "../src/core/TodoService";
+import { User } from "../src/domain/User";
 import { InMemoryTodoRepository } from "../src/infra/InMemoryTodoRepository";
 import { InMemoryUserRepository } from "../src/infra/InMemoryUserRepository";
-import { User } from "../src/domain/User";
-import { Todo } from "../src/domain/Todo";
+// import { Todo } from "../src/domain/Todo";
 
 describe("TodoService", () => {
   let todoService: TodoService;
@@ -19,6 +19,8 @@ describe("TodoService", () => {
     testUser = await userRepo.create({
       email: "test@example.com",
       name: "Test User",
+      // add password
+      password: 'password'
     });
   });
 
@@ -128,10 +130,21 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
+      // Mock Query data
+      const query = {
+        limit: 2,
+        page: 1,
+      };
+      const dto = {
+        userId: testUser.id,
+        ...query,
+      };
+
       await todoService.processReminders();
 
-      const todos = await todoService.getTodosByUser(testUser.id);
-      const processedTodo = todos.find((t) => t.id === todo.id);
+      // input user id since userId come from middleware
+      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       expect(processedTodo?.status).toBe("REMINDER_DUE");
     });
@@ -145,10 +158,21 @@ describe("TodoService", () => {
         remindAt: futureDate.toISOString(),
       });
 
+      // create mock userI
+      const query = {
+        limit: 2,
+        page: 1,
+      };
+      const dto = {
+        userId: testUser.id,
+        ...query,
+      };
+
       await todoService.processReminders();
 
-      const todos = await todoService.getTodosByUser(testUser.id);
-      const processedTodo = todos.find((t) => t.id === todo.id);
+      // input user id since userId come from middleware
+      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       expect(processedTodo?.status).toBe("PENDING");
     });
@@ -164,11 +188,22 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
+      const query = {
+        limit: 2,
+        page: 1
+      }
+
+      const dto = {
+        userId: testUser.id,
+        ...query
+      }
+
       await todoService.completeTodo(todo.id);
       await todoService.processReminders();
 
-      const todos = await todoService.getTodosByUser(testUser.id);
-      const processedTodo = todos.find((t) => t.id === todo.id);
+      // input user id since userId come from middleware
+      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       // Should remain DONE, not changed to REMINDER_DUE
       expect(processedTodo?.status).toBe("DONE");
@@ -183,13 +218,25 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
-      await todoService.processReminders();
-      const todos1 = await todoService.getTodosByUser(testUser.id);
-      const todo1 = todos1.find((t) => t.id === todo.id);
+      const query = {
+        limit: 2,
+        page: 1,
+      };
+
+      const dto = {
+        userId: testUser.id,
+        ...query,
+      };
 
       await todoService.processReminders();
-      const todos2 = await todoService.getTodosByUser(testUser.id);
-      const todo2 = todos2.find((t) => t.id === todo.id);
+      // input user id since userId come from middleware
+      const todos1 = await todoService.getTodosByUser(testUser.id, dto);
+      const todo1 = todos1.data.find((t) => t.id === todo.id);
+
+      await todoService.processReminders();
+      // input user id since userId come from middleware
+      const todos2 = await todoService.getTodosByUser(testUser.id, dto);
+      const todo2 = todos2.data.find((t) => t.id === todo.id);
 
       // Should be the same after multiple processings
       expect(todo2?.status).toBe("REMINDER_DUE");
@@ -209,7 +256,18 @@ describe("TodoService", () => {
         title: "Task 2",
       });
 
-      const todos = await todoService.getTodosByUser(testUser.id);
+      const query = {
+        limit: 2,
+        page: 1
+      };
+
+      const dto = {
+        userId: testUser.id,
+        ...query
+      }
+
+      // input user id since userId come from middleware
+      const { data: todos } = await todoService.getTodosByUser(testUser.id, dto);
 
       expect(todos).toHaveLength(2);
       expect(todos.every((t) => t.userId === testUser.id)).toBe(true);
@@ -219,9 +277,23 @@ describe("TodoService", () => {
       const anotherUser = await userRepo.create({
         email: "another@example.com",
         name: "Another User",
+
+        // implement password
+        password: "password"
       });
 
-      const todos = await todoService.getTodosByUser(anotherUser.id);
+      const query = {
+        limit: 2,
+        page: 1
+      };
+
+      const dto = {
+        userId: anotherUser.id,
+        ...query
+      }
+
+      // input user id since userId come from middleware
+      const { data: todos } = await todoService.getTodosByUser(testUser.id, dto);
 
       expect(todos).toHaveLength(0);
     });

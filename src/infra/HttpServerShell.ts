@@ -1,5 +1,7 @@
+import type { Request, Response } from "express";
+
 export interface RouteHandler {
-  (req: any, res: any): void | Promise<void>;
+  (req: Request, res: Response): void | Promise<void>;
 }
 
 export interface IHttpServer {
