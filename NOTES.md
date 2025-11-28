@@ -1,8 +1,8 @@
 # Implementation Notes
 
 **Candidate:** Fauzan Adithya Zuchairul Mursalin
-**Date:** 27 November 2025  
-**Time Spent:** [X hours]
+**Date:** 27 November 2025
+**Time Spent:** 16 hours
 
 ## Main Bugs/Issues Found
 
@@ -276,15 +276,15 @@ Verify health on [http://localhost:3000/health](http://localhost:3000/health).
 
 If I had more time, I would add/improve:
 
-1.
-2.
-3.
+1. Improve typing/interfaces
+2. Improve clean code
+3. Improve database managment refreshToken
 
 ---
 
 ## Assumptions Made
 
-1.
+1. It took to long to finish the test
 2.
 3.
 
@@ -292,7 +292,7 @@ If I had more time, I would add/improve:
 
 ## Challenges Faced
 
-1.
+1. Working with complex OOP code base
 2.
 3.
 
