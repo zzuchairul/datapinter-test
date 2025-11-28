@@ -92,6 +92,10 @@ if (!data.title.trim()) {
 3. `dotenv`, required a generated `prisma` file.
 4. `tsconfig-paths`, enable runtime of module paths in `tsconfig.json` so we can implement import alias.
 5. `zod`, validation library.
+6. `bcrypt`, for hashing and comparing
+7. `express-rate-limit`, for rate limit
+8. `jsonwebtoken`, generate jwt for stateless authentication 
+9. `morgan`, for logging
 
 ---
 
