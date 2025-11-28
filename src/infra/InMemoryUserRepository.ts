@@ -1,3 +1,4 @@
+import type { IGeneratedQuery } from "@common/generateQuery";
 import { IUserRepository } from "../core/IUserRepository";
 import { User } from "../domain/User";
 
@@ -21,8 +22,11 @@ export class InMemoryUserRepository implements IUserRepository {
     return user || null;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.users;
+  async findAll(_query: IGeneratedQuery): Promise<{ data: User[]; count: number }> {
+    return {
+      data: this.users,
+      count: this.users.length
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {

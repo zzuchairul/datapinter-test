@@ -107,29 +107,38 @@ if (!data.title.trim()) {
 -- CreateEnum
 CREATE TYPE "TodoStatus" AS ENUM ('PENDING', 'DONE', 'REMINDER_DUE');
 
--- CreateTable
+-- User Table
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    refreshToken TEXT,
+    createdAt TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- CreateTable
+
+-- Todo Table
 CREATE TABLE "Todo" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "description" TEXT,
-    "status" "TodoStatus" NOT NULL DEFAULT 'PENDING',
-    "remindAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    status "TodoStatus" NOT NULL DEFAULT 'PENDING',
+    remindAt TIMESTAMPTZ,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT "Todo_pkey" PRIMARY KEY ("id")
+    userId UUID NOT NULL,
+
+    CONSTRAINT "Todo_userId_fkey"
+      FOREIGN KEY ("userId")
+      REFERENCES "User" (id)
+      ON DELETE RESTRICT
+      ON UPDATE CASCADE
 );
+
+-- Index on userId
+CREATE INDEX "Todo_userId_idx" ON "Todo" ("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -274,6 +283,11 @@ Verify health on [http://localhost:3000/health](http://localhost:3000/health).
 
 ### Details
 
+I really try to figure out to not touch the test file and core interface file. But I dont found another way to make it sync with my implementataion. For example because im implementing paginatio I need to change core interface file, and add mock data in test file.
+
+For test file, I dont change any expected output, although I think there's one unit test that has bad implementation that will never to pass. The one with "should mark a pending todo as done".
+
+
 ---
 
 ## Future Improvements
@@ -283,12 +297,15 @@ If I had more time, I would add/improve:
 1. Improve typing/interfaces
 2. Improve clean code
 3. Improve database managment refreshToken
+4. Implement softDeletes
+5. Improve folder/file structure
+6. Implement API docs
 
 ---
 
 ## Assumptions Made
 
-1. It took to long to finish the test
+1. I'm in bad performance because, it took to long to finish the test. The OOP System Design bassicaly make me confuse.
 2.
 3.
 

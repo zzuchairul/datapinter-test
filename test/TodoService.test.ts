@@ -3,6 +3,7 @@ import { User } from "../src/domain/User";
 import { InMemoryTodoRepository } from "../src/infra/InMemoryTodoRepository";
 import { InMemoryUserRepository } from "../src/infra/InMemoryUserRepository";
 // import { Todo } from "../src/domain/Todo";
+import { GetTodoListDTO } from "../src/dto/GetTodoListDTO";
 
 describe("TodoService", () => {
   let todoService: TodoService;
@@ -10,10 +11,23 @@ describe("TodoService", () => {
   let userRepo: InMemoryUserRepository;
   let testUser: User;
 
+  // mock Query
+  let query: GetTodoListDTO;
+
   beforeEach(async () => {
     todoRepo = new InMemoryTodoRepository();
     userRepo = new InMemoryUserRepository();
     todoService = new TodoService(todoRepo, userRepo);
+    
+    // Create mock up query
+    query = {
+      limit: 10,
+      page: 1,
+      searchVal: "",
+      searchBy: "",
+      sortBy: "",
+      sortVal: "",
+    };
 
     // Create a test user
     testUser = await userRepo.create({
@@ -130,20 +144,10 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
-      // Mock Query data
-      const query = {
-        limit: 2,
-        page: 1,
-      };
-      const dto = {
-        userId: testUser.id,
-        ...query,
-      };
-
       await todoService.processReminders();
 
       // input user id since userId come from middleware
-      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const todos = await todoService.getTodosByUser(testUser.id, query);
       const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       expect(processedTodo?.status).toBe("REMINDER_DUE");
@@ -158,20 +162,10 @@ describe("TodoService", () => {
         remindAt: futureDate.toISOString(),
       });
 
-      // create mock userI
-      const query = {
-        limit: 2,
-        page: 1,
-      };
-      const dto = {
-        userId: testUser.id,
-        ...query,
-      };
-
       await todoService.processReminders();
 
       // input user id since userId come from middleware
-      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const todos = await todoService.getTodosByUser(testUser.id, query);
       const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       expect(processedTodo?.status).toBe("PENDING");
@@ -188,21 +182,11 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
-      const query = {
-        limit: 2,
-        page: 1
-      }
-
-      const dto = {
-        userId: testUser.id,
-        ...query
-      }
-
       await todoService.completeTodo(todo.id);
       await todoService.processReminders();
 
       // input user id since userId come from middleware
-      const todos = await todoService.getTodosByUser(testUser.id, dto);
+      const todos = await todoService.getTodosByUser(testUser.id, query);
       const processedTodo = todos.data.find((t) => t.id === todo.id);
 
       // Should remain DONE, not changed to REMINDER_DUE
@@ -218,24 +202,14 @@ describe("TodoService", () => {
         remindAt: pastDate.toISOString(),
       });
 
-      const query = {
-        limit: 2,
-        page: 1,
-      };
-
-      const dto = {
-        userId: testUser.id,
-        ...query,
-      };
-
       await todoService.processReminders();
       // input user id since userId come from middleware
-      const todos1 = await todoService.getTodosByUser(testUser.id, dto);
+      const todos1 = await todoService.getTodosByUser(testUser.id, query);
       const todo1 = todos1.data.find((t) => t.id === todo.id);
 
       await todoService.processReminders();
       // input user id since userId come from middleware
-      const todos2 = await todoService.getTodosByUser(testUser.id, dto);
+      const todos2 = await todoService.getTodosByUser(testUser.id, query);
       const todo2 = todos2.data.find((t) => t.id === todo.id);
 
       // Should be the same after multiple processings
@@ -256,18 +230,8 @@ describe("TodoService", () => {
         title: "Task 2",
       });
 
-      const query = {
-        limit: 2,
-        page: 1
-      };
-
-      const dto = {
-        userId: testUser.id,
-        ...query
-      }
-
       // input user id since userId come from middleware
-      const { data: todos } = await todoService.getTodosByUser(testUser.id, dto);
+      const { data: todos } = await todoService.getTodosByUser(testUser.id, query);
 
       expect(todos).toHaveLength(2);
       expect(todos.every((t) => t.userId === testUser.id)).toBe(true);
@@ -282,18 +246,8 @@ describe("TodoService", () => {
         password: "password"
       });
 
-      const query = {
-        limit: 2,
-        page: 1
-      };
-
-      const dto = {
-        userId: anotherUser.id,
-        ...query
-      }
-
       // input user id since userId come from middleware
-      const { data: todos } = await todoService.getTodosByUser(testUser.id, dto);
+      const { data: todos } = await todoService.getTodosByUser(anotherUser.id, query);
 
       expect(todos).toHaveLength(0);
     });

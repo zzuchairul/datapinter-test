@@ -8,6 +8,7 @@ import { UserController } from 'src/controllers/UserController';
 import { errorHandler } from 'src/middleware/errorHandler';
 import { registerTodoRoutes } from 'src/routes/TodoRoutes';
 import { UserRoutes } from 'src/routes/UserRoutes';
+import { registerSchedulers } from 'src/scheduler/TodoReminderScheduler';
 
 async function bootstrap() {
   
@@ -30,6 +31,10 @@ async function bootstrap() {
   
   // Init Express app
   const http = new ExpressHttpServer();
+
+  // Scheduler
+  registerSchedulers(todoRepo); 
+
 
   // API Route
   // Path: /users
