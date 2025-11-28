@@ -283,11 +283,9 @@ Verify health on [http://localhost:3000/health](http://localhost:3000/health).
 
 ### Details
 
-I tried my best not to modify the test files or the core interface files, but I couldn’t find a the way to keep everything in sync with my implementation. For example, while implementing pagination, I had to update the core interface repository file and add mock query in the test file. I added inline comments in the test file to briefly explain these changes.
-
-In the test files, I did not change any expected outputs, although I believe one of the unit tests—specifically, the one titled “should mark a pending todo as done”, Im pretty sure its written incorectly and will never pass the unit test.
-
-Although I haven’t implemented API documentation yet, I plan to add it gradually as a future improvement after submitting this coding test.
+- Implement authentication with jwt.
+- Generate pgaination, filtering, and sorting.
+- 
 
 ---
 
@@ -301,6 +299,7 @@ If I had more time, I would add/improve:
 4. Implement softDeletes
 5. Improve folder/file structure
 6. Implement API docs
+7. Implement batching on update todo i scheduler.
 
 ---
 
@@ -315,9 +314,15 @@ If I had more time, I would add/improve:
 ## Challenges Faced
 
 1. Working with complex OOP code base
-2.
+2. I was overengineer on handling types / interfaces.
 3.
 
 ---
 
 ## Additional Comments
+
+I tried my best not to modify the test files or the core interface files, but I couldn’t find a the way to keep everything in sync with my implementation. For example, while implementing pagination, I had to update the core interface repository file and add mock query in the test file. I added inline comments in the test file to briefly explain these changes.
+
+In the test files, I did not change any expected outputs, although I believe one of the unit tests—specifically, the one titled “should mark a pending todo as done”, Im pretty sure its written incorectly and will never pass the unit test.
+
+Although I haven’t implemented API documentation yet, I plan to add it gradually as a future improvement after submitting this coding test.
