@@ -8,6 +8,7 @@ import morgan from 'morgan';
 export class ExpressHttpServer implements IHttpServer {
   private app: Express;
   private server: Server | null = null;
+  private currentPrefix: string = '';
 
   constructor() {
     // Create express app
@@ -26,8 +27,8 @@ export class ExpressHttpServer implements IHttpServer {
     });
     this.app.use(limiter);
 
-    // Logging 
-    this.app.use(morgan('common')); 
+    // Logging
+    this.app.use(morgan('common'));
 
     // Check health
     this.app.get('/health', (_, res: Response) => {
@@ -39,14 +40,37 @@ export class ExpressHttpServer implements IHttpServer {
     });
   }
 
-  registerRoute(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, handler: RouteHandler, middleware?: Array<(req: Request, res: Response, next: NextFunction) => void>): void {
+  // Group Route
+  group(prefix: string, callback: () => void) {
+    const previousPrefix = this.currentPrefix;
+
+    const normalized = prefix.startsWith('/') ? prefix : `/${prefix}`;
+
+    this.currentPrefix = previousPrefix + normalized;
+
+    callback();
+
+    this.currentPrefix = previousPrefix;
+  }
+
+  registerRoute(
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', 
+    path: string, handler: RouteHandler, 
+    middleware?: Array<(req: Request, res: Response, next: NextFunction
+  ) => void>): void {
+    // concat with
+    const finalPath = this.currentPrefix + path;
+
     const chain = middleware ? 
     [
       ...middleware, 
       (req: Request, res: Response, next: NextFunction) => Promise.resolve(handler(req, res)).catch(next)
-    ] : [(req:  Request, res: Response, next: NextFunction) => Promise.resolve(handler(req, res)).catch(next)];
-    (this.app as any)[method.toLowerCase()](path, ...chain);
+    ] : [
+      (req: Request, res: Response, next: NextFunction) => Promise.resolve(handler(req, res)).catch(next)
+    ];
+    (this.app as any)[method.toLowerCase()](finalPath, ...chain);
   }
+
 
   registerMiddleware(middleware: any): void {
     this.app.use(middleware);

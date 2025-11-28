@@ -7,7 +7,7 @@ import { TodoController } from 'src/controllers/TodoController';
 import { UserController } from 'src/controllers/UserController';
 import { errorHandler } from 'src/middleware/errorHandler';
 import { registerTodoRoutes } from 'src/routes/TodoRoutes';
-import { registerUserRoutes } from 'src/routes/UserRoutes';
+import { UserRoutes } from 'src/routes/UserRoutes';
 
 async function bootstrap() {
   
@@ -33,7 +33,9 @@ async function bootstrap() {
 
   // API Route
   // Path: /users
-  registerUserRoutes(http, userController);
+  new UserRoutes(http, userController).register();
+
+  // Path: /todos
   registerTodoRoutes(http, todoController);
 
   // Middleware
