@@ -1,0 +1,433 @@
+{
+	"info": {
+		"_postman_id": "426c9a49-50de-4344-82b0-b29a11a443a1",
+		"name": "DataPinter",
+		"description": "StartFragment\n\n# 📘 API Overview\n\nThis document provides a simple overview of all **Users** and **Todos** API endpoints, including authentication requirements, inputs, and behaviors.\n\n---\n\n# 👤 Users API\n\n**Base URL:** `/users`\n\n---\n\n## **POST** **`/users`** **– Register User**\n\n- **Auth:** Not required\n    \n- **Body:**\n    \n    - `email` - string (required)\n        \n    - `name` - string (required)\n        \n    - `password` - string (required)\n        \n\n---\n\n## **POST** **`/users/login`** **– Login**\n\n- **Auth:** Not required\n    \n- **Body:**\n    \n    - `email` - string (required)\n        \n    - `password` - string (required)\n        \n\n---\n\n## **POST** **`/users/refresh`** **– Refresh Access Token**\n\n- **Auth:** Not required\n    \n- **Body:**\n    \n    - `refreshToken` string (required)\n        \n\n---\n\n## **POST** **`/users/logout`** **– Logout**\n\n- **Auth:** Required\n    \n- **Body:** none\n    \n\n---\n\n## **GET** **`/users/`** **– Get All Users**\n\n- **Auth:** Not required\n    \n- **Query Params:**\n    \n    - `limit` — number (default: 10)\n        \n    - `page` — number (default: 1)\n        \n    - `searchVal` — string (optional)\n        \n    - `searchBy` — string (optional)\n        \n    - `sortBy` — string (default: `createdAt`)\n        \n    - `sortVal` — string (default: `desc`)\n        \n\n---\n\n## **GET** **`/users/:id`** **– Get User by ID**\n\n- **Auth:** Not required\n    \n- **URL Params:**\n    \n    - `id` — User ID (string)\n        \n\n---\n\n# 🚀 Todos API\n\n**Base URL:** `/todos`\n\n---\n\n## **POST** **`/todos/`** **– Create Todo**\n\n- **Auth:** Required\n    \n- **Body:**\n    \n    - `title` — string (required)\n        \n    - `description` — string (optional)\n        \n    - `remindAt` — ISO date string (optional)\n        \n\n---\n\n## **GET** **`/todos/`** **– Get Todo List**\n\n- **Auth:** Required\n    \n- **Query Params:**\n    \n    - `limit` — number (default: 10)\n        \n    - `page` — number (default: 1)\n        \n    - `searchVal` — string (optional)\n        \n    - `searchBy` — string (optional)\n        \n    - `sortBy` — string (default: `createdAt`)\n        \n    - `sortVal` — string (default: `desc`)\n        \n\n---\n\n## **PATCH** **`/todos/:id/complete`** **– Mark Todo as Completed**\n\n- **Auth:** Required\n    \n- **URL Params:**\n    \n    - `id` — Todo ID (string)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18176839",
+		"_collection_link": "https://www.postman.com/blue-astronaut-896150/workspace/coding-challange-api-mrscrapper/collection/18176839-426c9a49-50de-4344-82b0-b29a11a443a1?action=share&source=collection_link&creator=18176839"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json()\r",
+									"let request = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"\r",
+									"pm.environment.set(\"lastCreatedUserId\", response.id);\r",
+									"pm.environment.set(\"lastCreatedUserEmail\", response.email);\r",
+									"pm.environment.set(\"lastCreatedUserPassword\", request.password);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"User test\",\r\n    \"email\": \"haii@gmail.com\",\r\n    \"password\": \"Testtest1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json()\r",
+									"let request = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"pm.environment.set(\"accessToken\", response.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", response.refreshToken);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{lastCreatedUserEmail}}\",\r\n    \"password\": \"{{lastCreatedUserPassword}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users/login",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json()\r",
+									"let request = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"pm.environment.set(\"accessToken\", response.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", response.refreshToken);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users/refresh",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"accessToken\", \"\");\r",
+									"pm.environment.set(\"refreshToken\", \"\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users/logout",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find List User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users?limit=2&page=1&sortVal=desc&sortBy=createdAt&searchVal=haii&searchBy=email",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "sortVal",
+									"value": "desc"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "searchVal",
+									"value": "haii"
+								},
+								{
+									"key": "searchBy",
+									"value": "email"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find User By Id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ORIGIN_URL}}/users/{{lastCreatedUserId}}",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"users",
+								"{{lastCreatedUserId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Todos",
+			"item": [
+				{
+					"name": "Find List Todo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ORIGIN_URL}}/todos?limit=2&page=1&sortVal=desc&sortBy=createdAt&searchVal=haii&searchBy=email",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"todos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "sortVal",
+									"value": "desc"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "searchVal",
+									"value": "haii"
+								},
+								{
+									"key": "searchBy",
+									"value": "email"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Todo as Done",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/todos/{{lastCreatedTodoId}}/complete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"todos",
+								"{{lastCreatedTodoId}}",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Todo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json()\r",
+									"\r",
+									"pm.environment.set(\"lastCreatedTodoId\", response.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Swimming\",\r\n    \"description\": \"Swim for 3 km\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ORIGIN_URL}}/todos",
+							"host": [
+								"{{ORIGIN_URL}}"
+							],
+							"path": [
+								"todos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -277,7 +277,9 @@ Verify health on [http://localhost:3000/health](http://localhost:3000/health).
 - [✅] Docker Setup
 - [✅] Environment Configuration
 - [✅] Integration Tests
-- [ ] API Documentation
+- [✅] API Documentation,
+  - Postman URL, https://documenter.getpostman.com/view/18176839/2sB3dLTrh5
+  - I also include exported postman collection and environment on ./postman
 - [✅] Health Check Endpoint
 - [ ] Other: ******\_\_\_******
 
@@ -298,8 +300,7 @@ If I had more time, I would add/improve:
 3. Improve database managment refreshToken
 4. Implement softDeletes
 5. Improve folder/file structure
-6. Implement API docs
-7. Implement batching on update todo i scheduler.
+6. Implement batching on update todo i scheduler.
 
 ---
 
