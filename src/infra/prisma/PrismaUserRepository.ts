@@ -25,7 +25,7 @@ export class PrismaUserRepository implements IUserRepository {
     return user
       ? {
           ...user,
-          refreshToken: user.refreshToken ?? undefined,
+          refreshToken: undefined,
         }
       : null;
   }
