@@ -37,7 +37,7 @@ export class UserController {
   /**
    * Mark a User as completed.
    *
-   * @route GET /users/:userId/users
+   * @route GET /users/:id/users
    *
    * @param req.params.id - The ID of the user.
    * @param res - response object.
@@ -46,7 +46,7 @@ export class UserController {
    *
    */
   findUserById = async (req: Request, res: Response) => {
-    const data = await this.userService.findUser(req.params.userId);
+    const data = await this.userService.findUser(req.params.id);
     res.status(constants.HTTP_STATUS_OK).json(data);
   };
 
