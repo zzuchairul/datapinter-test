@@ -301,6 +301,8 @@ If I had more time, I would add/improve:
 4. Implement softDeletes
 5. Improve folder/file structure
 6. Implement batching on update todo i scheduler.
+7. Improve error handling
+8. Improve API Docs
 
 ---
 
